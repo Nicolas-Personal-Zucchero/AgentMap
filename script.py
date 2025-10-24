@@ -139,23 +139,27 @@ def generateHTML(sigle, agentCounter, agentList, saving_path = None):
 def updateMapRepository(agentCounter, agentList):
     working_dir = os.path.dirname(__file__)
     repo_url = "https://github.com/Nicolas-Personal-Zucchero/AgentMap"
+    repo_url = "git@github.com:Nicolas-Personal-Zucchero/AgentMap.git"
     file_to_modify = "index.html"
-    repo_path = os.path.join(working_dir, os.path.basename(repo_url))
-    file_path = os.path.join(repo_path, file_to_modify)
+    file_path = os.path.join(working_dir, file_to_modify)
 
-    print("Controllando la presenza della repository...")
-    if(not os.path.exists(repo_path)):
-        print("Repository non presente, clonando repository...")
-        git.Repo.clone_from(repo_url, repo_path)
+#    print("Controllando la presenza della repository...")
+#    if(not os.path.exists(repo_path)):
+#        print("Repository non presente, clonando repository...")
+#        git.Repo.clone_from(repo_url, repo_path)
 
     # Aggiungere, committare e pushare le modifiche
-    repo = git.Repo(repo_path)
+    print("Pullo la repository per possibili update")
+    os.environ["GIT_SSH_COMMAND"] = "ssh -i /home/pz/.ssh/id_ed25519 -o IdentitiesOnly=yes"
+    repo = git.Repo(working_dir)
     origin = repo.remote(name='origin')
     origin.pull()
 
-    print("Generando la mappa agenti...")
+    print("Genero la mappa agenti...")
     generateHTML(list(PROVINCE.keys()), agentCounter, agentList, saving_path=file_path)
+
     print("Mappa agenti generata. Push in corso...")
+    print(file_path)
     repo.index.add([file_path])
     repo.index.commit(f"Aggiornamento automatico della mappa degli agenti ({datetime.now().strftime('%d-%m-%Y %H:%M:%S')})")
     origin.push()
