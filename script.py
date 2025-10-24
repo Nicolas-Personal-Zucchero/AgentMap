@@ -159,7 +159,6 @@ def updateMapRepository(agentCounter, agentList):
     generateHTML(list(PROVINCE.keys()), agentCounter, agentList, saving_path=file_path)
 
     print("Mappa agenti generata. Push in corso...")
-    print(file_path)
     repo.index.add([file_path])
     repo.index.commit(f"Aggiornamento automatico della mappa degli agenti ({datetime.now().strftime('%d-%m-%Y %H:%M:%S')})")
     origin.push()
