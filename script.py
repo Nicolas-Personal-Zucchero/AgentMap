@@ -71,7 +71,7 @@ def enumera_agenti_per_provincia(agenti):
 
 def getColor(value):
     value = min(value, 5)
-    COLOR[value]
+    return COLOR[value]
 
 def readGeojson(sigla):
     global geojsons
