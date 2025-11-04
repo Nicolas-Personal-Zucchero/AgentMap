@@ -88,6 +88,13 @@ def readGeojson(sigla):
     print(sigla + " non trovata")
     return None
 
+def readRegionGeojson():
+    map_path = os.path.dirname(__file__)
+    map_path = os.path.join(map_path, "regions.geojson")
+    with open(map_path, 'r') as file:
+        geojsons = json.load(file)
+    return geojsons["features"]
+
 #######Funzioni di mapping#################################################
 
 def generateHTML(sigle, agentCounter, agentList, saving_path = None):
@@ -100,7 +107,7 @@ def generateHTML(sigle, agentCounter, agentList, saving_path = None):
     mappa_agenti = folium.Map(location=[42.5, 12.5], zoom_start=6)
 
     for sigla in sigle:
-        style_function = lambda x, color=getColor(agentCounter[sigla]): {'fillColor': color, 'color': 'black', 'weight': 2, 'fillOpacity': 1}
+        style_function = lambda x, color=getColor(agentCounter[sigla]): {'fillColor': color, 'color': 'white', 'weight': 2, 'fillOpacity': 1}
 
         tooltipDictionary = {PROVINCE[sigla]: f"({sigla})",
                "Numero Agenti": agentCounter[sigla],
@@ -108,21 +115,23 @@ def generateHTML(sigle, agentCounter, agentList, saving_path = None):
         testo = ""
         for key,value in tooltipDictionary.items():
             testo += f"<strong>{key}</strong> {value}<br>" if value != "" else ""
-
-        tooltip = folium.Tooltip(
-            sigla,
-            sticky=False,
-            style="""
-                font-size: 20px;
-            """)
         
         folium.GeoJson(
             readGeojson(sigla),
             name=sigla,
             style_function=style_function,
-            # tooltip=tooltip, #Remosso perchè crea un rettangolo con bordi neri quando si clicca su una provincia
             popup=folium.Popup(testo, min_width=100, max_width=400)
         ).add_to(mappa_agenti)
+
+    for region in readRegionGeojson():
+        folium.GeoJson(
+            region,
+            style_function=lambda x: {'fillColor': 'transparent', 'color': '#333333', 'weight': 5, 'fillOpacity': 0},
+            tooltip=region['properties']['reg_name'],
+            highlight_function=lambda x: {'weight': 5, 'color': '#000000'},
+            interactive=False
+        ).add_to(mappa_agenti)
+
 
     mappa_agenti.save(saving_path)
 
@@ -158,7 +167,7 @@ def updateMapRepository(agentCounter, agentList):
 
     print("Genero la mappa agenti...")
     generateHTML(list(PROVINCE.keys()), agentCounter, agentList, saving_path=file_path)
-
+    
     print("Mappa agenti generata. Push in corso...")
     repo.index.add([file_path])
     repo.index.commit(f"Aggiornamento automatico della mappa degli agenti ({datetime.now().strftime('%d-%m-%Y %H:%M:%S')})")
