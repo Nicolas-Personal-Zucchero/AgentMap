@@ -30,7 +30,6 @@ PROVINCE = {
 }
 
 geojsons = None
-downloadedAgents  = []    #array of dictionary of agents
 
 #######Funzioni di hubspot#################################################
 
@@ -47,7 +46,7 @@ def convertiData(timeMillisecond):
     data = datetime.fromtimestamp(timestamp)
     return data.date()
 
-def enumeraAgentiPerProvincia(agenti):
+def enumera_agenti_per_provincia(agenti):
     agentCounter = {}   #sigla -> numero agenti
     agentList = {}      #sigla -> elenco agenti
     
@@ -169,13 +168,13 @@ def updateMapRepository(agentCounter, agentList):
 if __name__ == '__main__':
     h2 = HubspotPZ(TOKEN)
 
-    agentsPropertyList = ["codice_mexal", "nome_mexal", "regione", "province"]
+    agents_property_list = ["codice_mexal", "nome_mexal", "regione", "province", "data_fine_contratto", "escluso_da_assegnazione_clienti"]
 
     agents_ids = h2.getAgentsListMembersIds()
-    downloadedAgents2 = h2.getContactBatch(agents_ids, agentsPropertyList)
-    downloadedAgents2 = [a for a in downloadedAgents2 if a["province"] is not None]
-    downloadedAgents2 = sorted(downloadedAgents2, key=lambda x: int(x["id"]))
+    agents = h2.getContactBatch(agents_ids, agents_property_list)
+    agents = [a for a in agents if a["province"] is not None and a["data_fine_contratto"] is None and a["escluso_da_assegnazione_clienti"] == "false"]
+    agents = sorted(agents, key=lambda x: int(x["id"]))
 
-    agentCounter, agentList = enumeraAgentiPerProvincia(downloadedAgents2)
+    agent_counter, agent_list = enumera_agenti_per_provincia(agents)
     
-    updateMapRepository(agentCounter, agentList)
+    updateMapRepository(agent_counter, agent_list)
