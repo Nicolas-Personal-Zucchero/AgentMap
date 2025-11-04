@@ -132,6 +132,7 @@ def generateHTML(sigle, agentCounter, agentList, saving_path = None):
             interactive=False
         ).add_to(mappa_agenti)
 
+    add_legend(mappa_agenti)
 
     mappa_agenti.save(saving_path)
 
@@ -143,6 +144,29 @@ def generateHTML(sigle, agentCounter, agentList, saving_path = None):
         file.truncate()
         
     return saving_path
+
+
+def add_legend(mappa):
+    legend_html = """
+     <div style="
+     position: fixed; 
+     bottom: 50px; left: 50px; width: 160px; height: 180px; 
+     background-color: white; 
+     border:2px solid grey; 
+     z-index:9999;
+     font-size:14px;
+     padding: 10px;
+     ">
+     <b>Numero Agenti</b><br>
+     <i style="background:#c0ccd7;width:18px;height:18px;float:left;margin-right:5px;"></i> 0<br>
+     <i style="background:#a3bedb;width:18px;height:18px;float:left;margin-right:5px;"></i> 1<br>
+     <i style="background:#66b1db;width:18px;height:18px;float:left;margin-right:5px;"></i> 2<br>
+     <i style="background:#00a7e1;width:18px;height:18px;float:left;margin-right:5px;"></i> 3<br>
+     <i style="background:#006bb3;width:18px;height:18px;float:left;margin-right:5px;"></i> 4<br>
+     <i style="background:#004987;width:18px;height:18px;float:left;margin-right:5px;"></i> 5+
+     </div>
+     """
+    mappa.get_root().html.add_child(folium.Element(legend_html))
 
 #######Applicazione#################################################
 
@@ -167,7 +191,7 @@ def updateMapRepository(agentCounter, agentList):
 
     print("Genero la mappa agenti...")
     generateHTML(list(PROVINCE.keys()), agentCounter, agentList, saving_path=file_path)
-    
+    return
     print("Mappa agenti generata. Push in corso...")
     repo.index.add([file_path])
     repo.index.commit(f"Aggiornamento automatico della mappa degli agenti ({datetime.now().strftime('%d-%m-%Y %H:%M:%S')})")
