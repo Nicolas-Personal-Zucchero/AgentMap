@@ -8,7 +8,15 @@ import time
 from hubspot_pz import HubspotPZ
 
 TOKEN = os.getenv("HUBSPOT_AGENTS_MAP_TOKEN")
-COLORI = ["#c0ccd7", "#00a7e1", "#004987"]
+COLOR = [
+    "#c0ccd7",  # 0 agenti – grigio azzurro chiaro
+    "#a3bedb",  # 1 agente – azzurro chiaro
+    "#66b1db",  # 2 agenti – azzurro medio
+    "#00a7e1",  # 3 agenti – azzurro brillante
+    "#006bb3",  # 4 agenti – blu intenso
+    "#004987",  # 5 agenti – blu scuro
+]
+
 
 PROVINCE = {
     'AG': 'Agrigento', 'AL': 'Alessandria', 'AN': 'Ancona', 'AO': 'Aosta', 'AP': 'Ascoli Piceno', 'AQ': "L'Aquila", 'AR': 'Arezzo',
@@ -62,14 +70,8 @@ def enumera_agenti_per_provincia(agenti):
     return agentCounter, agentList
 
 def getColor(value):
-    conditions = [
-        (lambda x: x == 0, COLORI[0]),
-        (lambda x: x <= 3, COLORI[1]),
-        (lambda x: x > 3, COLORI[2])]
-    
-    for condition, color in conditions:
-        if condition(value):
-            return color
+    value = min(value, 5)
+    COLOR[value]
 
 def readGeojson(sigla):
     global geojsons
